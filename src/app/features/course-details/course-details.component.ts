@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CourseStore } from '../../store/course.store';
 import { AuthStore } from '../../store/auth.store';
+import { CourseEditModalComponent } from '../course-edit-modal/course-edit-modal.component';
 
 @Component({
   selector: 'app-course-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule, MatSnackBarModule],
+  imports: [CommonModule, RouterLink, MatIconModule, MatSnackBarModule, MatDialogModule],
   template: `
     <div class="h-full flex flex-col">
       @if (store.isLoading()) {
@@ -58,10 +60,10 @@ import { AuthStore } from '../../store/auth.store';
                 Share
               </button>
               @if (canManageCourses()) {
-                <a [routerLink]="['/courses', course.id, 'edit']" class="px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium text-sm hover:bg-primary/90 transition-colors flex items-center gap-2">
+                <button (click)="openEditModal(course)" class="px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium text-sm hover:bg-primary/90 transition-colors flex items-center gap-2">
                   <mat-icon style="font-size: 18px; width: 18px; height: 18px;">edit</mat-icon>
                   Edit Course
-                </a>
+                </button>
               }
             </div>
           </div>
@@ -173,6 +175,7 @@ export class CourseDetailsComponent implements OnInit {
   authStore = inject(AuthStore);
   router = inject(Router);
   snackBar = inject(MatSnackBar);
+  dialog = inject(MatDialog);
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -185,6 +188,14 @@ export class CourseDetailsComponent implements OnInit {
 
   canManageCourses(): boolean {
     return this.authStore.hasRole(['employer', 'master']);
+  }
+
+  openEditModal(course: any) {
+    this.dialog.open(CourseEditModalComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      data: course
+    });
   }
 
   toggleFavorite() {

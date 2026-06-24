@@ -4,14 +4,16 @@ import { RouterLink, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { CourseStore } from '../../store/course.store';
 import { CourseStatus } from '../../core/models/course.model';
 import { AuthStore } from '../../store/auth.store';
+import { CourseEditModalComponent } from '../course-edit-modal/course-edit-modal.component';
 
 @Component({
   selector: 'app-courses-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule, MatPaginatorModule, MatSnackBarModule],
+  imports: [CommonModule, RouterLink, MatIconModule, MatPaginatorModule, MatSnackBarModule, MatDialogModule],
   template: `
     <div class="mb-8 flex items-center justify-between">
       <div>
@@ -124,9 +126,9 @@ import { AuthStore } from '../../store/auth.store';
                       Details
                     </button>
                     @if (canManageCourses()) {
-                      <a [routerLink]="['/courses', course.id, 'edit']" class="text-primary hover:bg-primary/10 transition-colors px-2 py-1.5 rounded-md font-medium text-xs flex items-center gap-1">
+                      <button (click)="openEditModal(course, $event)" class="text-primary hover:bg-primary/10 transition-colors px-2 py-1.5 rounded-md font-medium text-xs flex items-center gap-1">
                         Edit
-                      </a>
+                      </button>
                       <button (click)="promptDelete(course, $event)" class="text-destructive hover:bg-destructive/10 transition-colors p-1.5 rounded-md" title="Delete Course">
                         <mat-icon style="font-size: 16px; width: 16px; height: 16px;">delete</mat-icon>
                       </button>
@@ -175,6 +177,7 @@ export class CoursesListComponent implements OnInit {
   authStore = inject(AuthStore);
   router = inject(Router);
   snackBar = inject(MatSnackBar);
+  dialog = inject(MatDialog);
   
   statuses: (CourseStatus | 'All')[] = ['All', 'Active', 'Draft', 'Archived'];
   
@@ -202,6 +205,16 @@ export class CoursesListComponent implements OnInit {
       return;
     }
     this.router.navigate(['/courses', courseId]);
+  }
+
+  openEditModal(course: any, event: Event) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.dialog.open(CourseEditModalComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      data: course
+    });
   }
 
   get pagedCourses() {
