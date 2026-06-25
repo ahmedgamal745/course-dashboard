@@ -6,15 +6,16 @@ import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/materia
 import { CourseStore } from '../../store/course.store';
 import { CourseService } from '../../core/services/course.service';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-course-edit-modal',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MatIconModule, MatDialogModule, MatSnackBarModule],
   template: `
-    <div class="p-6">
+    <div class="p-4 md:p-6">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold">Edit Course</h2>
+        <h2 class="text-xl md:text-2xl font-bold">Edit Course</h2>
         <button mat-dialog-close class="p-1 hover:bg-muted rounded-full transition-colors text-muted-foreground">
           <mat-icon style="font-size: 20px; width: 20px; height: 20px;">close</mat-icon>
         </button>
@@ -57,11 +58,11 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
                     class="w-full px-4 py-3 rounded-md border border-border focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none"></textarea>
         </div>
 
-        <div class="pt-6 border-t border-border flex justify-end gap-3 mt-4">
-          <button type="button" mat-dialog-close class="px-5 py-2 border border-border rounded-md font-medium hover:bg-muted transition-colors">
+        <div class="pt-6 border-t border-border flex flex-col-reverse md:flex-row justify-end gap-3 mt-4">
+          <button type="button" mat-dialog-close class="w-full md:w-auto px-5 py-2 border border-border rounded-md font-medium hover:bg-muted transition-colors">
             Cancel
           </button>
-          <button type="submit" [disabled]="courseForm.invalid || isSubmitting" class="px-5 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2">
+          <button type="submit" [disabled]="courseForm.invalid || isSubmitting" class="w-full md:w-auto px-5 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
             @if (isSubmitting) {
               <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
               Saving...
@@ -81,6 +82,7 @@ export class CourseEditModalComponent implements OnInit {
   dialogRef = inject(MatDialogRef<CourseEditModalComponent>);
   data = inject(MAT_DIALOG_DATA);
   snackBar = inject(MatSnackBar);
+  notificationService = inject(NotificationService);
 
   courseForm!: FormGroup;
   isSubmitting = false;
@@ -104,6 +106,7 @@ export class CourseEditModalComponent implements OnInit {
       next: () => {
         this.isSubmitting = false;
         this.store.loadCourses(); // Refresh list
+        this.notificationService.broadcast('COURSE_UPDATED', 'Course Updated', `The course "${formValue.title}" was updated.`);
         this.snackBar.open('Course updated successfully', 'Close', { duration: 3000 });
         this.dialogRef.close(true);
       },

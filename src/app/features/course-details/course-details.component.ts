@@ -19,33 +19,58 @@ import { CourseEditModalComponent } from '../course-edit-modal/course-edit-modal
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       } @else if (store.selectedCourse(); as course) {
-        <div class="mb-6">
+        <div class="mb-6 relative">
+          @if (course.coverImageUrl) {
+            <div class="h-64 md:h-80 w-full mb-6 rounded-xl overflow-hidden relative">
+              <img [src]="course.coverImageUrl" class="w-full h-full object-cover" alt="Course Cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+              <div class="absolute bottom-6 left-6 right-6">
+                <div class="flex items-center gap-3 mb-2">
+                  <span 
+                    [class.bg-green-500]="course.status === 'Active'"
+                    [class.text-white]="course.status === 'Active'"
+                    [class.bg-amber-500]="course.status === 'Draft'"
+                    [class.text-white]="course.status === 'Draft'"
+                    [class.bg-slate-500]="course.status === 'Archived'"
+                    [class.text-white]="course.status === 'Archived'"
+                    class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm">
+                    {{ course.status }}
+                  </span>
+                  <span class="text-sm font-medium text-white/90">{{ course.category }} • {{ course.level }}</span>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">{{ course.title }}</h1>
+              </div>
+            </div>
+          }
+          
           <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
             <a routerLink="/courses" class="hover:text-foreground transition-colors">Courses</a>
             <mat-icon style="font-size: 16px; width: 16px; height: 16px;">chevron_right</mat-icon>
             <span class="text-foreground font-medium">{{ course.title }}</span>
           </div>
           
-          <div class="flex items-start justify-between">
-            <div>
-              <div class="flex items-center gap-3 mb-2">
-                <span 
-                  [class.bg-green-100]="course.status === 'Active'"
-                  [class.text-green-700]="course.status === 'Active'"
-                  [class.bg-amber-100]="course.status === 'Draft'"
-                  [class.text-amber-700]="course.status === 'Draft'"
-                  [class.bg-slate-200]="course.status === 'Archived'"
-                  [class.text-slate-700]="course.status === 'Archived'"
-                  class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                  {{ course.status }}
-                </span>
-                <span class="text-sm font-medium text-muted-foreground">{{ course.category }} • {{ course.level }}</span>
-              </div>
-              <h1 class="text-3xl font-bold text-foreground mb-2">{{ course.title }}</h1>
-              <p class="text-muted-foreground max-w-3xl">{{ course.description }}</p>
+          <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+            <div [class.md:hidden]="course.coverImageUrl">
+              @if (!course.coverImageUrl) {
+                <div class="flex items-center gap-3 mb-2">
+                  <span 
+                    [class.bg-green-100]="course.status === 'Active'"
+                    [class.text-green-700]="course.status === 'Active'"
+                    [class.bg-amber-100]="course.status === 'Draft'"
+                    [class.text-amber-700]="course.status === 'Draft'"
+                    [class.bg-slate-200]="course.status === 'Archived'"
+                    [class.text-slate-700]="course.status === 'Archived'"
+                    class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    {{ course.status }}
+                  </span>
+                  <span class="text-sm font-medium text-muted-foreground">{{ course.category }} • {{ course.level }}</span>
+                </div>
+                <h1 class="text-3xl font-bold text-foreground mb-2">{{ course.title }}</h1>
+              }
+              <p class="text-muted-foreground max-w-3xl mt-4">{{ course.description }}</p>
             </div>
             
-            <div class="flex gap-3 shrink-0">
+            <div class="flex flex-wrap gap-3 shrink-0 mt-4 md:mt-0">
               <button (click)="toggleFavorite()" class="px-4 py-2 bg-white border border-border rounded-md font-medium text-sm hover:bg-muted transition-colors flex items-center gap-2"
                       [class.text-red-500]="course.isFavorite"
                       [class.border-red-200]="course.isFavorite"

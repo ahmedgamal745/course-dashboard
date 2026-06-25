@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { CourseStore } from '../../store/course.store';
 import { CourseService } from '../../core/services/course.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 @Component({
   selector: 'app-course-form',
@@ -19,22 +20,22 @@ import { CourseService } from '../../core/services/course.service';
           <span class="text-foreground font-medium">{{ isEditMode ? 'Edit Course' : 'New Course' }}</span>
         </div>
         
-        <div class="flex items-center gap-8 border-b border-border pb-4">
-          <div class="flex items-center gap-3">
+        <div class="flex items-center gap-8 border-b border-border pb-4 overflow-x-auto whitespace-nowrap">
+          <div class="flex items-center gap-3 shrink-0">
             <div class="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
               1
             </div>
             <span class="font-bold text-primary">Course Identification</span>
           </div>
-          <div class="h-px bg-border w-16"></div>
-          <div class="flex items-center gap-3 opacity-50">
+          <div class="h-px bg-border w-8 md:w-16 shrink-0"></div>
+          <div class="flex items-center gap-3 opacity-50 shrink-0">
             <div class="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center font-bold text-sm">
               2
             </div>
             <span class="font-medium text-muted-foreground">Curriculum</span>
           </div>
-          <div class="h-px bg-border w-16"></div>
-          <div class="flex items-center gap-3 opacity-50">
+          <div class="h-px bg-border w-8 md:w-16 shrink-0"></div>
+          <div class="flex items-center gap-3 opacity-50 shrink-0">
             <div class="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center font-bold text-sm">
               3
             </div>
@@ -43,10 +44,10 @@ import { CourseService } from '../../core/services/course.service';
         </div>
       </div>
 
-      <div class="bg-white border border-border rounded-xl shadow-sm flex-1 mb-8 p-8 relative">
+      <div class="bg-white border border-border rounded-xl shadow-sm flex-1 mb-8 p-4 md:p-8 relative">
         <div class="mb-8">
           <h2 class="text-2xl font-bold mb-2">General Information</h2>
-          <p class="text-muted-foreground">Define the core identity of your executive training module. These details will be visible to students in the catalog.</p>
+          <p class="text-muted-foreground text-sm md:text-base">Define the core identity of your executive training module. These details will be visible to students in the catalog.</p>
         </div>
 
         <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" class="space-y-6">
@@ -93,20 +94,37 @@ import { CourseService } from '../../core/services/course.service';
 
           <div>
             <label class="block text-sm font-bold text-foreground mb-2">Featured Cover Image</label>
-            <div class="border-2 border-dashed border-border rounded-lg p-10 flex flex-col items-center justify-center text-center hover:bg-muted/30 transition-colors cursor-pointer group">
-              <div class="w-12 h-12 rounded-lg bg-muted flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
-                <mat-icon class="text-muted-foreground">cloud_upload</mat-icon>
+            
+            <input type="file" id="coverImage" accept="image/*" class="hidden" (change)="onFileSelected($event)">
+            
+            <label for="coverImage" class="border-2 border-dashed border-border rounded-lg p-6 md:p-10 flex flex-col items-center justify-center text-center hover:bg-muted/30 transition-colors cursor-pointer group relative overflow-hidden h-64">
+              @if (previewImage) {
+                <img [src]="previewImage" class="absolute inset-0 w-full h-full object-cover" alt="Preview">
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span class="text-white font-medium flex items-center gap-2">
+                    <mat-icon>change_circle</mat-icon> Change Image
+                  </span>
+                </div>
+              } @else {
+                <div class="w-12 h-12 rounded-lg bg-muted flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                  <mat-icon class="text-muted-foreground">cloud_upload</mat-icon>
+                </div>
+                <p class="font-bold text-primary mb-1">Click to upload or drag and drop</p>
+                <p class="text-xs text-muted-foreground">SVG, PNG, JPG or WebP (max. 1600x900px, 5MB)</p>
+              }
+            </label>
+            @if (previewImage) {
+              <div class="mt-2 text-right">
+                <button type="button" (click)="previewImage = null" class="text-xs text-destructive hover:underline">Remove image</button>
               </div>
-              <p class="font-bold text-primary mb-1">Click to upload or drag and drop</p>
-              <p class="text-xs text-muted-foreground">SVG, PNG, JPG or WebP (max. 1600x900px, 5MB)</p>
-            </div>
+            }
           </div>
           
-          <div class="pt-6 border-t border-border flex justify-end gap-4 mt-8">
-            <button type="button" routerLink="/courses" class="px-6 py-2.5 border border-border rounded-md font-medium hover:bg-muted transition-colors">
+          <div class="pt-6 border-t border-border flex flex-col-reverse md:flex-row justify-end gap-3 md:gap-4 mt-8">
+            <button type="button" routerLink="/courses" class="w-full md:w-auto px-6 py-2.5 border border-border rounded-md font-medium hover:bg-muted transition-colors">
               Cancel
             </button>
-            <button type="submit" [disabled]="courseForm.invalid || isSubmitting" class="px-6 py-2.5 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center gap-2">
+            <button type="submit" [disabled]="courseForm.invalid || isSubmitting" class="w-full md:w-auto px-6 py-2.5 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
               @if (isSubmitting) {
                 <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 Saving...
@@ -126,11 +144,13 @@ export class CourseFormComponent implements OnInit {
   router = inject(Router);
   store = inject(CourseStore);
   courseService = inject(CourseService);
+  notificationService = inject(NotificationService);
 
   courseForm!: FormGroup;
   isEditMode = false;
   courseId: string | null = null;
   isSubmitting = false;
+  previewImage: string | null = null;
 
   ngOnInit() {
     this.initForm();
@@ -140,8 +160,6 @@ export class CourseFormComponent implements OnInit {
       if (this.courseId) {
         this.isEditMode = true;
         this.store.loadCourseById(this.courseId);
-        // We'd ideally wait for the store to update and patch the form
-        // For simplicity in this demo, let's subscribe or effect to patch the form
         setTimeout(() => {
           const course = this.store.selectedCourse();
           if (course) {
@@ -151,6 +169,9 @@ export class CourseFormComponent implements OnInit {
               level: course.level,
               description: course.description
             });
+            if (course.coverImageUrl) {
+              this.previewImage = course.coverImageUrl;
+            }
           }
         }, 100);
       }
@@ -166,16 +187,32 @@ export class CourseFormComponent implements OnInit {
     });
   }
 
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.previewImage = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   onSubmit() {
     if (this.courseForm.invalid) return;
 
     this.isSubmitting = true;
     const formValue = this.courseForm.value;
+    const payload = { ...formValue };
+    if (this.previewImage) {
+      payload.coverImageUrl = this.previewImage;
+    }
 
     if (this.isEditMode && this.courseId) {
-      this.courseService.updateCourse(this.courseId, formValue).subscribe({
+      this.courseService.updateCourse(this.courseId, payload).subscribe({
         next: () => {
           this.isSubmitting = false;
+          this.notificationService.broadcast('COURSE_UPDATED', 'Course Updated', `The course "${payload.title}" was updated.`);
           this.store.loadCourses(); // Refresh
           this.router.navigate(['/courses', this.courseId]);
         },
@@ -183,7 +220,7 @@ export class CourseFormComponent implements OnInit {
       });
     } else {
       const newCourse: any = {
-        ...formValue,
+        ...payload,
         status: 'Draft',
         duration: 'TBD',
         hours: 0,
@@ -194,6 +231,7 @@ export class CourseFormComponent implements OnInit {
       this.courseService.addCourse(newCourse).subscribe({
         next: (course) => {
           this.isSubmitting = false;
+          this.notificationService.broadcast('COURSE_CREATED', 'New Course Added', `The course "${newCourse.title}" was successfully created.`);
           this.store.loadCourses();
           this.router.navigate(['/courses']);
         },

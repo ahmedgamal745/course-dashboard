@@ -80,8 +80,12 @@ import { CourseEditModalComponent } from '../course-edit-modal/course-edit-modal
                 </div>
 
                 <div class="h-40 bg-muted relative border-b border-border overflow-hidden">
-                  <div class="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-100 group-hover:scale-105 transition-transform duration-500"></div>
-                  <div class="absolute top-4 left-4">
+                  @if (course.coverImageUrl) {
+                    <img [src]="course.coverImageUrl" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="Course Cover">
+                  } @else {
+                    <div class="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-100 group-hover:scale-105 transition-transform duration-500"></div>
+                  }
+                  <div class="absolute top-4 left-4 z-10">
                     <span 
                       [class.bg-green-100]="course.status === 'Active'"
                       [class.text-green-700]="course.status === 'Active'"

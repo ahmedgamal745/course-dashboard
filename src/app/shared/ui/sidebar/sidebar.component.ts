@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,18 +21,18 @@ import { AuthStore } from '../../../store/auth.store';
         <nav class="space-y-1">
           <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-4">Main Navigation</p>
           
-          <a routerLink="/dashboard" routerLinkActive="bg-primary/10 text-primary" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 transition-colors group">
+          <a routerLink="/dashboard" routerLinkActive="bg-primary/10 text-primary" (click)="onLinkClick()" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 transition-colors group">
             <mat-icon class="text-slate-400 group-hover:text-primary transition-colors" style="font-size: 20px; width: 20px; height: 20px;">dashboard</mat-icon>
             <span class="font-medium text-sm">Dashboard</span>
           </a>
           
-          <a routerLink="/courses" routerLinkActive="bg-primary/10 text-primary" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 transition-colors group">
+          <a routerLink="/courses" routerLinkActive="bg-primary/10 text-primary" (click)="onLinkClick()" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 transition-colors group">
             <mat-icon class="text-slate-400 group-hover:text-primary transition-colors" style="font-size: 20px; width: 20px; height: 20px;">menu_book</mat-icon>
             <span class="font-medium text-sm">Courses</span>
           </a>
           
           @if (authStore.hasRole(['employer', 'master'])) {
-            <a routerLink="/students" routerLinkActive="bg-primary/10 text-primary" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 transition-colors group">
+            <a routerLink="/students" routerLinkActive="bg-primary/10 text-primary" (click)="onLinkClick()" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 transition-colors group">
               <mat-icon class="text-slate-400 group-hover:text-primary transition-colors" style="font-size: 20px; width: 20px; height: 20px;">people</mat-icon>
               <span class="font-medium text-sm">Students</span>
             </a>
@@ -41,12 +41,12 @@ import { AuthStore } from '../../../store/auth.store';
           @if (canManageCourses()) {
             <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-8">Admin Portal</p>
             
-            <a routerLink="/reports" routerLinkActive="bg-primary/10 text-primary" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 transition-colors group">
+            <a routerLink="/reports" routerLinkActive="bg-primary/10 text-primary" (click)="onLinkClick()" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 transition-colors group">
               <mat-icon class="text-slate-400 group-hover:text-primary transition-colors" style="font-size: 20px; width: 20px; height: 20px;">bar_chart</mat-icon>
               <span class="font-medium text-sm">Reports</span>
             </a>
             
-            <a routerLink="/settings" routerLinkActive="bg-primary/10 text-primary" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 transition-colors group">
+            <a routerLink="/settings" routerLinkActive="bg-primary/10 text-primary" (click)="onLinkClick()" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-slate-800 transition-colors group">
               <mat-icon class="text-slate-400 group-hover:text-primary transition-colors" style="font-size: 20px; width: 20px; height: 20px;">settings</mat-icon>
               <span class="font-medium text-sm">Settings</span>
             </a>
@@ -68,9 +68,14 @@ import { AuthStore } from '../../../store/auth.store';
   `,
 })
 export class SidebarComponent {
+  @Output() linkClicked = new EventEmitter<void>();
   authStore = inject(AuthStore);
 
   canManageCourses(): boolean {
     return this.authStore.hasRole(['employer', 'master']);
+  }
+
+  onLinkClick() {
+    this.linkClicked.emit();
   }
 }
